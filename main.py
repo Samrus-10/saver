@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from db_lite import SessionDep, create_db
+from db_lite import SessionDep, create_db, sqlite_file_name, refresh
 from model import Payload, Data
 import json 
 
@@ -27,11 +27,16 @@ def test(body: Payload, session: SessionDep):
     session.add(data)
     session.commit()
     session.refresh(data)
-    
+
     return {'saved'}
 
 @app.get('/file')
 def getFile():
-    return FileResponse('db/database.bd', 
+    return FileResponse(sqlite_file_name, 
                         filename = 'data.bd', 
                         media_type='application/octet-stream')
+
+@app.delete('/file')
+def refreshFile():
+    refresh()
+    return {'refresh'}
